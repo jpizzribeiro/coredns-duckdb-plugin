@@ -1,4 +1,4 @@
-package duckdblog
+package duckdb
 
 import (
 	"github.com/coredns/caddy"

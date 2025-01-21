@@ -1,4 +1,4 @@
-package duckdblog
+package duckdb
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"github.com/coredns/coredns/plugin"
 	"github.com/coredns/coredns/request"
 	"github.com/marcboeker/go-duckdb"
+	"github.com/miekg/dns"
 	"net"
 	"time"
 )
