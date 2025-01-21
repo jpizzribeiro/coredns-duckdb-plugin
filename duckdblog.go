@@ -2,10 +2,11 @@ package duckdb
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"github.com/coredns/coredns/plugin"
 	"github.com/coredns/coredns/request"
-	"github.com/marcboeker/go-duckdb"
+	_ "github.com/marcboeker/go-duckdb"
 	"github.com/miekg/dns"
 	"net"
 	"time"
@@ -14,7 +15,7 @@ import (
 type DuckDBLogger struct {
 	Next   plugin.Handler
 	DBPath string
-	conn   *duckdb.Conn
+	conn   *sql.Conn
 }
 
 // ServeDNS processa a consulta DNS e registra o log no DuckDB.
@@ -29,7 +30,7 @@ func (d DuckDBLogger) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns
 
 	// Inserir log no DuckDB
 	query := `INSERT INTO dns_logs (timestamp, client_ip, query_name, query_type) VALUES (?, ?, ?, ?)`
-	_, err := d.conn.Exec(query, timestamp, clientIP, queryName, queryType)
+	_, err := d.conn.QueryContext(ctx, query, timestamp, clientIP, queryName, queryType)
 	if err != nil {
 		fmt.Printf("Erro ao registrar log: %v\n", err)
 	}

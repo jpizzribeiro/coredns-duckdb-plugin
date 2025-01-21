@@ -1,9 +1,11 @@
 package duckdb
 
 import (
+	"context"
+	"database/sql"
 	"github.com/coredns/caddy"
 	"github.com/coredns/coredns/plugin"
-	"github.com/marcboeker/go-duckdb"
+	_ "github.com/marcboeker/go-duckdb"
 )
 
 // Setup configura o plugin DuckDBLogger
@@ -18,10 +20,14 @@ func setup(c *caddy.Controller) error {
 	}
 
 	// Conecta ao DuckDB
-	conn, err := duckdb.Open(dbPath)
+	db, err := sql.Open("duckdb", dbPath)
 	if err != nil {
 		return plugin.Error("duckdblog", err)
 	}
+	defer db.Close()
+
+	conn, err := db.Conn(context.Background())
+	defer conn.Close()
 
 	// Cria a tabela de logs, se não existir
 	createTable := `CREATE TABLE IF NOT EXISTS dns_logs (
@@ -30,7 +36,7 @@ func setup(c *caddy.Controller) error {
 		query_name TEXT,
 		query_type INTEGER
 	)`
-	_, err = conn.Exec(createTable)
+	_, err = conn.QueryContext(context.Background(), createTable)
 	if err != nil {
 		return plugin.Error("duckdblog", err)
 	}
@@ -42,3 +48,5 @@ func setup(c *caddy.Controller) error {
 
 	return nil
 }
+
+func init() { plugin.Register("duckdblog", setup) }
