@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"github.com/coredns/caddy"
+	"github.com/coredns/coredns/core/dnsserver"
 	"github.com/coredns/coredns/plugin"
 	_ "github.com/marcboeker/go-duckdb"
 )
@@ -42,7 +43,10 @@ func setup(c *caddy.Controller) error {
 	}
 
 	// Registra o plugin
-	plugin.Register("duckdblog", func(next plugin.Handler) plugin.Handler {
+	//plugin.Register("duckdblog", func(next plugin.Handler) plugin.Handler {
+	//	return DuckDBLogger{Next: next, DBPath: dbPath, conn: conn}
+	//})
+	dnsserver.GetConfig(c).AddPlugin(func(next plugin.Handler) plugin.Handler {
 		return DuckDBLogger{Next: next, DBPath: dbPath, conn: conn}
 	})
 
